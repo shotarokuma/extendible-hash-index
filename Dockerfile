@@ -10,6 +10,6 @@ WORKDIR /app
 
 COPY . /app
 
-RUN g++ -std=c++17 -o myapp main.cpp
+RUN g++ -std=c++17 -o myapp main.cpp ExtensibleHashTable.cpp Bucket.cpp
 
 CMD ["./myapp"]

@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  extendible-hash-index:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    command: ./myapp

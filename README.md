@@ -5,5 +5,5 @@ docker build -t myapp .
 ```
 ### run 
 ```
-docker run myapp
+docker run --rm myapp 
 ```

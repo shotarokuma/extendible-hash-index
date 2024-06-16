@@ -1,12 +1,50 @@
 #include "ExtensibleHashTable.h"
-#include <algorithm>
-#include <stdexcept>
 
-ExtensibleHashTable::ExtensibleHashTable() : ExtensibleHashTable(4) {}
-
-ExtensibleHashTable::ExtensibleHashTable(int bucketSize) : bucketSize(bucketSize), globalDepth(1) {
-    directory.resize(2, std::make_shared<Bucket>(1));
+ExtensibleHashTable::ExtensibleHashTable() 
+    : globalDepth(1), directory(2) {
+      directory[0] = Bucket(INIT_DEPTH, DEFAULT_BUCKET_SIZE, 0)
+      directory[1] = Bucket(INIT_DEPTH, DEFAULT_BUCKET_SIZE, 1)
 }
+
+ExtensibleHashTable::ExtensibleHashTable(int bucketSize) : globalDepth(1), directory(2) {
+  directory[0] = Bucket(INIT_DEPTH, bucketSize, 0)
+  directory[1] = Bucket(INIT_DEPTH, bucketSize, 1)
+}
+
+int ExtensibleHashTable::hash(int key, int depth) const {
+  int mask = ( 1 << depth ) - 1;
+  return key & mask;
+}
+
+
+void ExtensibleHashTable::doubleDirectory() {
+    int bucketSize = directory[0].size;
+    int oldSize = directory.size();
+    directory.resize(directory.size() * 2);
+    for(int i = oldSize; i < directory.size(); i++){
+      directory[i] = Bucket(globalDepth, bucketSize, i);
+    }
+    globalDepth += 1;
+}
+
+void ExtensibleHashTable::splitBucket(Bucket& entry) {
+   for(int i = 0; i < entry -> currSize; i++){
+    int target = entry.keys[i];
+    entry.remove(entry.keys[i]);
+    while(!insert(target)){
+      Bucket overflow;
+      int curr = hash(target, globalDepth);
+      for(int i = 0; i < directory.size(); i++){
+        if(directory[i].index == curr){
+          overflow = directory[i]
+        }
+      }
+      doubleDirectory();
+      splitBucket(overflow);
+    }
+   }
+}
+
 
 ExtensibleHashTable::ExtensibleHashTable(const ExtensibleHashTable& other)
     : globalDepth(other.globalDepth), bucketSize(other.bucketSize) {
@@ -30,9 +68,6 @@ ExtensibleHashTable& ExtensibleHashTable::operator=(const ExtensibleHashTable& o
 
 ExtensibleHashTable::~ExtensibleHashTable() {}
 
-int ExtensibleHashTable::hash(int key) const {
-    return key & ((1 << globalDepth) - 1);
-}
 
 void ExtensibleHashTable::splitBucket(int index) {
     auto oldBucket = directory[index];
@@ -63,31 +98,47 @@ void ExtensibleHashTable::splitBucket(int index) {
     }
 }
 
-void ExtensibleHashTable::doubleDirectory() {
-    size_t newSize = 1 << (globalDepth + 1);
-    directory.resize(newSize);
-    for (size_t i = 0; i < newSize / 2; ++i) {
-        directory[i + newSize / 2] = directory[i];
-    }
-    globalDepth++;
-}
-
 bool ExtensibleHashTable::find(int key) const {
-    int index = hash(key);
-    auto bucket = directory[index];
-    return std::find(bucket->keys.begin(), bucket->keys.end(), key) != bucket->keys.end();
+   int depth = globalDepth;
+   while(depth >  0){
+     int curr = hash(key, depth);
+     for (const Bucket& entry : directory) {
+        if(curr == entry.index){
+          if(depth ==  entry.localDepth){
+            return entry.find(key);
+          }else{
+            int mask = (1 << entry.localDepth) - 1;
+            depth = depth & mask;
+            continue;
+          }
+        }
+     }
+    depth -= 1;
+   }
+  return false;
 }
 
 void ExtensibleHashTable::insert(int key) {
-    int index = hash(key);
-    auto bucket = directory[index];
-
-    if (bucket->keys.size() >= bucketSize) {
-        splitBucket(index);
-        insert(key); // Retry insertion
-    } else {
-        bucket->keys.push_back(key);
-    }
+   int depth = globalDepth;
+   while(depth > 0){
+     int curr = hash(key, depth);
+     for (const Bucket& entry : directory) {
+        if(curr == entry.index){
+          if(depth ==  entry.localDepth){
+           while(entry.insert(key)){
+              doubleDirectory();
+              splitBucket(entry);
+           }
+           break;
+          }else{
+            int mask = (1 << entry.localDepth) - 1;
+            depth = depth & mask;
+            continue;
+          }
+        }
+     }
+    depth -= 1;
+   }
 }
 
 bool ExtensibleHashTable::remove(int key) {
@@ -104,7 +155,7 @@ bool ExtensibleHashTable::remove(int key) {
 void ExtensibleHashTable::print() const {
     std::cout << "Global Depth: " << globalDepth << std::endl;
     std::vector<bool> printed(directory.size(), false);
-    for (size_t i = 0; i < directory.size(); ++i) {
+    for (int i = 0; i < directory.size(); i++) {
         if (!printed[i]) {
             printed[i] = true;
             std::cout << i << ": " << directory[i].get() << " --> [";

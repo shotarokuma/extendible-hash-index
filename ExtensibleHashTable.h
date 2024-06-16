@@ -2,15 +2,16 @@
 #define EXTENSIBLEHASHTABLE_H
 
 #include <vector>
-#include <memory>
 #include <iostream>
 #include "Bucket.h"
 
 class ExtensibleHashTable {
 private:
     int globalDepth;
-    int bucketSize;
-    std::vector<std::shared_ptr<Bucket>> directory;
+    std::vector<Bucket> directory;
+
+    int DEFAULT_BUCKET_SIZE = 4;
+    int INIT_DEPTH = 1;
 
     int hash(int key) const;
     void splitBucket(int index);

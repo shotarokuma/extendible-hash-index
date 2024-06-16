@@ -5,14 +5,17 @@
 
 class Bucket {
 public:
-    // need to fix
-    int localDepth;
-    int index;
     int size;
     int currSize;
     int* keys; 
+    int localDepth;
 
-    Bucket(int depth);
+    Bucket(int depth, int size, int localDepth);
+
+    Bucket(const Bucket& other);
+    Bucket& operator=(const Bucket& other);
+    ~Bucket();
+
     bool find(int key);
     bool insert(int key);
     void remove(int key);

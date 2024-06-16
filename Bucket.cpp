@@ -1,24 +1,65 @@
 #include "Bucket.h"
 
-Bucket::Bucket(int depth, int bucketSize, int index) : localDepth(depth),  index(index), size(bucketSize), currSize(0) {
+#define INT_MAX 2147483647;
+
+Bucket::Bucket(int depth, int bucketSize, int localDepth) : size(bucketSize), currSize(0), localDepth(localDepth)
+{
   keys = new int[size];
-  for(int 0; i < size; i++){
-    keys[i] =  std::INT_MAX;
+  for (int i = 0; i < size; i++)
+  {
+    keys[i] = INT_MAX;
   }
 }
 
-bool Bucket:: find(int key){
-  for(int i = 0; i < currSize; i++){
-    if(key == keys[i]){
+Bucket::Bucket(const Bucket &other) : size(other.size), currSize(other.currSize), localDepth(other.localDepth)
+{
+  keys = new int[other.size];
+  for (int i = 0; i < size; i++)
+  {
+    keys[i] = other.keys[i];
+  }
+}
+
+Bucket& Bucket::operator=(const Bucket &other) {
+    if (this == &other) {
+        return *this; 
+    }
+    
+    delete[] keys; 
+
+    size = other.size;
+    currSize = other.currSize;
+    localDepth = other.localDepth;
+
+    keys = new int[other.size];
+    for (int i = 0; i < size; i++) {
+        keys[i] = other.keys[i];
+    }
+
+    return *this;
+}
+
+Bucket::~Bucket()
+{
+  delete[] keys;
+}
+
+bool Bucket::find(int key)
+{
+  for (int i = 0; i < currSize; i++)
+  {
+    if (key == keys[i])
+    {
       return true;
     }
   }
   return false;
 }
 
-
-bool Bucket::insert(int key){
-  if(currSize >= size){
+bool Bucket::insert(int key)
+{
+  if (currSize >= size)
+  {
     return false;
   }
   keys[currSize] = key;
@@ -26,16 +67,20 @@ bool Bucket::insert(int key){
   return true;
 }
 
-void Bucket::remove(int key){
-    for(int i = 0; i < currSize; i++){
-    if(key == keys[i]){
-      while(i + 1 < currSize){
-        keys[i] = keys[i + 11]
-        i += 1;
+void Bucket::remove(int key)
+{
+  for (int i = 0; i < currSize; i++)
+  {
+    if (key == keys[i])
+    {
+      int j = i;
+      for (; j < currSize; j++)
+      {
+        keys[j] = keys[j + 1];
+        j += 1;
       }
-      keys[i] = std::INT_MAX;
+      keys[j] = INT_MAX;
       currSize -= 1;
-      break;
     }
   }
 }

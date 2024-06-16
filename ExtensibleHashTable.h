@@ -8,13 +8,13 @@
 class ExtensibleHashTable {
 private:
     int globalDepth;
-    std::vector<Bucket> directory;
+    std::vector<Bucket*> directory;
 
-    int DEFAULT_BUCKET_SIZE = 4;
-    int INIT_DEPTH = 1;
+    const int DEFAULT_BUCKET_SIZE = 4;
+    const int INIT_DEPTH = 1;
 
-    int hash(int key) const;
-    void splitBucket(int index);
+    int hash(int key, int depth) const;
+    void splitBucket(Bucket* bucket);
     void doubleDirectory();
 
 public:

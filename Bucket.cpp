@@ -80,7 +80,7 @@ void Bucket::remove(int key)
         keys[j] = keys[j + 1];
         j += 1;
       }
-      keys[j] = INT_MAX;
+      keys[j] = EMPTH_VALUE;
       currSize -= 1;
     }
   }

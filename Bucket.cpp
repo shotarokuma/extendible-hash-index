@@ -70,20 +70,14 @@ bool Bucket::insert(int key)
 
 void Bucket::remove(int key)
 {
-  int removedSize = currSize;
-  for (int i = 0; i < currSize; i++)
-  {
-    if (key == keys[i])
-    {
-      int j = i;
-      for (; j < removedSize; j++)
-      {
-        keys[j] = keys[j + 1];
-        j += 1;
-      }
-      keys[j] = EMPTH_VALUE;
-      removedSize -= 1;
-    }
+ int removedSize = 0;
+ int* removedKeys = new int[size];
+ for(int i = 0; i < currSize; i++){
+  if(keys[i] != key){
+    removedKeys[removedSize] = keys[i];
+    removedSize += 1;
   }
-  currSize = removedSize;
+ }
+ keys = removedKeys;
+ currSize = removedSize;
 }

@@ -87,6 +87,7 @@ void Bucket::remove(int key)
   {
     removedKeys[i] = EMPTH_VALUE;
   }
+  delete[] keys;
   keys = removedKeys;
   currSize = removedSize;
 }

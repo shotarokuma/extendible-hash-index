@@ -93,15 +93,7 @@ ExtensibleHashTable::~ExtensibleHashTable()
 bool ExtensibleHashTable::find(int key) const
 {
   int target = hash(key, globalDepth);
-  for (int i = 0; i < directory.size(); i++)
-  {
-    if (target == i)
-    {
-      return directory[i]->find(key);
-    }
-  }
-
-  return false;
+  return directory[target]->find(key);
 }
 
 void ExtensibleHashTable::insert(int key)
@@ -115,12 +107,15 @@ void ExtensibleHashTable::insert(int key)
       if (directory[target]->localDepth == globalDepth)
       {
         int dup = 0;
-        for(int i = 0; i < directory[target] -> currSize;i++){
-          if(directory[target] -> keys[i] == key){
+        for (int i = 0; i < directory[target]->currSize; i++)
+        {
+          if (directory[target]->keys[i] == key)
+          {
             dup += 1;
           }
         }
-        if(dup >= directory[target] -> size){
+        if (dup >= directory[target]->size)
+        {
           throw std::runtime_error("The Bucket is filled with same keys");
         }
         doubleDirectory();
@@ -145,13 +140,10 @@ void ExtensibleHashTable::insert(int key)
 bool ExtensibleHashTable::remove(int key)
 {
   int target = hash(key, globalDepth);
-  for (int i = 0; i < directory.size(); i++)
+  if (directory[target]->find(key))
   {
-    if (target == i)
-    {
-      directory[i]->remove(key);
-      break;
-    }
+    directory[target]->remove(key);
+    return true;
   }
   return false;
 }
@@ -163,15 +155,15 @@ void ExtensibleHashTable::print() const
   {
     if (directory[i]->currSize == 0)
     {
-      std::cout << i << ": " << directory[i] << " --> " << std::endl;
+      std::cout << i << ": " << std::hex << (uintptr_t)directory[i] << std::dec << " --> " << std::endl;
       continue;
     }
     if (i >= 1 << directory[i]->localDepth)
     {
-      std::cout << i << ": " << directory[i] << " --> " << std::endl;
+      std::cout << i << ": " << std::hex << (uintptr_t)directory[i] << std::dec << " --> " << std::endl;
       continue;
     }
-    std::cout << i << ": " << directory[i] << " --> [";
+    std::cout << i << ": " << std::hex << (uintptr_t)directory[i] << std::dec << " --> [";
     for (int j = 0; j < directory[i]->size; j++)
     {
       if (j < directory[i]->currSize)

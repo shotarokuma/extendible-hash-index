@@ -3,14 +3,14 @@
 ExtensibleHashTable::ExtensibleHashTable()
     : globalDepth(1), directory(2)
 {
-  directory[0] = new Bucket(INIT_DEPTH, DEFAULT_BUCKET_SIZE, 1);
-  directory[1] = new Bucket(INIT_DEPTH, DEFAULT_BUCKET_SIZE, 1);
+  directory[0] = new Bucket(DEFAULT_BUCKET_SIZE, INIT_DEPTH);
+  directory[1] = new Bucket(DEFAULT_BUCKET_SIZE, INIT_DEPTH);
 }
 
 ExtensibleHashTable::ExtensibleHashTable(int bucketSize) : globalDepth(1), directory(2)
 {
-  directory[0] = new Bucket(INIT_DEPTH, bucketSize, 1);
-  directory[1] = new Bucket(INIT_DEPTH, bucketSize, 1);
+  directory[0] = new Bucket(bucketSize, INIT_DEPTH);
+  directory[1] = new Bucket(bucketSize, INIT_DEPTH);
 }
 
 int ExtensibleHashTable::hash(int key, int depth) const
@@ -33,11 +33,16 @@ void ExtensibleHashTable::doubleDirectory()
 
 void ExtensibleHashTable::splitBucket(Bucket *bucket)
 {
+  int *remove = new int[bucket->currSize];
+  for (int i = 0; i < bucket->currSize; ++i)
+  {
+    remove[i] = bucket->keys[i];
+  }
+
   for (int i = 0; i < bucket->currSize; i++)
   {
-    int removed = bucket->keys[i];
-    bucket->remove(bucket->keys[i]);
-    insert(removed);
+    bucket->remove(remove[i]);
+    insert(remove[i]);
   }
 }
 
@@ -74,9 +79,12 @@ ExtensibleHashTable &ExtensibleHashTable::operator=(const ExtensibleHashTable &o
 
 ExtensibleHashTable::~ExtensibleHashTable()
 {
-  for (Bucket *bucket : directory)
+  for (int i = 0; i < directory.size(); i++)
   {
-    delete bucket;
+    if (i < (1 << directory[i]->localDepth))
+    {
+      delete directory[i];
+    }
   }
 }
 
@@ -90,6 +98,8 @@ bool ExtensibleHashTable::find(int key) const
       return directory[i]->find(key);
     }
   }
+
+  return false;
 }
 
 void ExtensibleHashTable::insert(int key)
@@ -108,8 +118,10 @@ void ExtensibleHashTable::insert(int key)
         }
         else
         {
+          Bucket *prev = directory[i];
           directory[i]->localDepth += 1;
-          directory[i + 2 * globalDepth]->insert(key);
+          directory[i] = new Bucket(directory[i]->size, directory[i]->localDepth);
+          splitBucket(prev);
         }
       }
       break;
@@ -134,22 +146,34 @@ bool ExtensibleHashTable::remove(int key)
 void ExtensibleHashTable::print() const
 {
   std::cout << "Global Depth: " << globalDepth << std::endl;
-  std::vector<bool> printed(directory.size(), false);
   for (int i = 0; i < directory.size(); ++i)
   {
-    if (!printed[i])
+    if (directory[i]->currSize == 0)
     {
-      printed[i] = true;
-      std::cout << i << ": " << directory[i] << " --> [";
-      for (int i = 0; i < directory[i]->currSize; i++)
+      std::cout << i << ": " << directory[i] << " --> " << std::endl;
+      continue;
+    }
+    if (i >= 1 << directory[i]->localDepth)
+    {
+      std::cout << i << ": " << directory[i] << " --> " << std::endl;
+      continue;
+    }
+    std::cout << i << ": " << directory[i] << " --> [";
+    for (int j = 0; j < directory[i]->size; j++)
+    {
+      if (j < directory[i]->currSize)
       {
-        std::cout << directory[i]->keys[i] << ",";
+        std::cout << directory[i]->keys[j];
       }
-      std::cout << "] (" << directory[i]->localDepth << ")" << std::endl;
+      else
+      {
+        std::cout << "-";
+      }
+      if (j != directory[i]->size - 1)
+      {
+        std::cout << ",";
+      }
     }
-    else
-    {
-      std::cout << i << ": " << directory[i] << std::endl;
-    }
+    std::cout << "] (" << directory[i]->localDepth << ")" << std::endl;
   }
 }

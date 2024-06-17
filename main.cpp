@@ -2,27 +2,27 @@
 #include <iostream>
 
 int main() {
-    ExtensibleHashTable eht;
+    ExtensibleHashTable eht = ExtensibleHashTable(2);
 
     // Inserting elements into the hash table
-    eht.insert(0);
-    eht.insert(136);
+
     eht.insert(61);
-    eht.insert(89);
-    eht.insert(218);
-    eht.insert(123);
     eht.insert(43);
-    eht.insert(4);
-    eht.insert(156);
     eht.insert(38);
-    eht.insert(222);
+    eht.insert(218);
+    eht.insert(156);
     eht.insert(151);
-    eht.insert(27);
+    eht.insert(123);
+    eht.insert(89);
+    eht.insert(222);
+    eht.insert(4);
+    eht.insert(136);
+    eht.insert(0);
 
     eht.print();
 
     // Test cases to check if inserted elements are found
-    int inserted_elements[] = {27, 0, 38, 222};
+    int inserted_elements[] = {43, 0, 38, 222};
     for (int elem : inserted_elements) {
         if (!eht.find(elem)) {
             std::cout << "error: Not found " << elem << std::endl;
@@ -32,7 +32,7 @@ int main() {
     }
 
     // Test cases to check if non-inserted elements are not found
-    int non_inserted_elements[] = {999, 500, -1};
+    int non_inserted_elements[] = {999, 500, 1};
     for (int elem : non_inserted_elements) {
         if (eht.find(elem)) {
             std::cout << "error: Found " << elem << std::endl;

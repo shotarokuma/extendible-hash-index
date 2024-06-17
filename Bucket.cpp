@@ -1,13 +1,14 @@
 #include "Bucket.h"
+#include <iostream>
 
-#define INT_MAX 2147483647;
+#define EMPTH_VALUE 2147483647;
 
-Bucket::Bucket(int depth, int bucketSize, int localDepth) : size(bucketSize), currSize(0), localDepth(localDepth)
+Bucket::Bucket(int bucketSize, int localDepth) : size(bucketSize), currSize(0), localDepth(localDepth)
 {
   keys = new int[size];
   for (int i = 0; i < size; i++)
   {
-    keys[i] = INT_MAX;
+    keys[i] = EMPTH_VALUE;
   }
 }
 

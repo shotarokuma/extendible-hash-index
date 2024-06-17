@@ -10,7 +10,7 @@ public:
     int* keys; 
     int localDepth;
 
-    Bucket(int depth, int size, int localDepth);
+    Bucket(int bucketSize, int localDepth);
 
     Bucket(const Bucket& other);
     Bucket& operator=(const Bucket& other);

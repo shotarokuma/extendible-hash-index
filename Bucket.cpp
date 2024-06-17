@@ -21,23 +21,26 @@ Bucket::Bucket(const Bucket &other) : size(other.size), currSize(other.currSize)
   }
 }
 
-Bucket& Bucket::operator=(const Bucket &other) {
-    if (this == &other) {
-        return *this; 
-    }
-    
-    delete[] keys; 
-
-    size = other.size;
-    currSize = other.currSize;
-    localDepth = other.localDepth;
-
-    keys = new int[other.size];
-    for (int i = 0; i < size; i++) {
-        keys[i] = other.keys[i];
-    }
-
+Bucket &Bucket::operator=(const Bucket &other)
+{
+  if (this == &other)
+  {
     return *this;
+  }
+
+  delete[] keys;
+
+  size = other.size;
+  currSize = other.currSize;
+  localDepth = other.localDepth;
+
+  keys = new int[other.size];
+  for (int i = 0; i < size; i++)
+  {
+    keys[i] = other.keys[i];
+  }
+
+  return *this;
 }
 
 Bucket::~Bucket()
@@ -70,14 +73,20 @@ bool Bucket::insert(int key)
 
 void Bucket::remove(int key)
 {
- int removedSize = 0;
- int* removedKeys = new int[size];
- for(int i = 0; i < currSize; i++){
-  if(keys[i] != key){
-    removedKeys[removedSize] = keys[i];
-    removedSize += 1;
+  int removedSize = 0;
+  int *removedKeys = new int[size];
+  for (int i = 0; i < currSize; i++)
+  {
+    if (keys[i] != key)
+    {
+      removedKeys[removedSize] = keys[i];
+      removedSize += 1;
+    }
   }
- }
- keys = removedKeys;
- currSize = removedSize;
+  for (int i = removedSize; i < size; i++)
+  {
+    removedKeys[i] = EMPTH_VALUE;
+  }
+  keys = removedKeys;
+  currSize = removedSize;
 }

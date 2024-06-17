@@ -33,13 +33,14 @@ void ExtensibleHashTable::doubleDirectory()
 
 void ExtensibleHashTable::splitBucket(Bucket *bucket)
 {
-  int *remove = new int[bucket->currSize];
-  for (int i = 0; i < bucket->currSize; ++i)
+  int removeSize = bucket->currSize;
+  int *remove = new int[removeSize];
+  for (int i = 0; i < removeSize; ++i)
   {
     remove[i] = bucket->keys[i];
   }
 
-  for (int i = 0; i < bucket->currSize; i++)
+  for (int i = 0; i < removeSize; i++)
   {
     bucket->remove(remove[i]);
     insert(remove[i]);
@@ -105,26 +106,21 @@ bool ExtensibleHashTable::find(int key) const
 void ExtensibleHashTable::insert(int key)
 {
   int target = hash(key, globalDepth);
-  for (int i = 0; i < directory.size(); i++)
+
+  while (!(directory[target]->insert(key)))
   {
-    if (target == i)
+    if (directory[target]->localDepth == globalDepth)
     {
-      while (!(directory[i]->insert(key)))
-      {
-        if (directory[i]->localDepth == globalDepth)
-        {
-          doubleDirectory();
-          splitBucket(directory[i]);
-        }
-        else
-        {
-          Bucket *prev = directory[i];
-          directory[i]->localDepth += 1;
-          directory[i] = new Bucket(directory[i]->size, directory[i]->localDepth);
-          splitBucket(prev);
-        }
-      }
-      break;
+      doubleDirectory();
+      splitBucket(directory[target]);
+      target = hash(key, globalDepth);
+    }
+    else
+    {
+      Bucket *prev = directory[target];
+      directory[target]->localDepth += 1;
+      directory[target] = new Bucket(directory[target]->size, directory[target]->localDepth);
+      splitBucket(prev);
     }
   }
 }

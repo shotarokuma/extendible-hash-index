@@ -19,6 +19,7 @@ int main() {
     eht.insert(136);
     eht.insert(0);
 
+    eht.insert(27);
     eht.print();
 
     // Test cases to check if inserted elements are found

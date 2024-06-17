@@ -1,113 +1,71 @@
 #include "ExtensibleHashTable.h"
 #include <iostream>
 
-void testInsert(ExtensibleHashTable& eht, int key) {
-    eht.insert(key);
-    std::cout << "Inserted " << key << ":\n";
-    eht.print();
-    std::cout << "\n";
-}
-
-void testFind(ExtensibleHashTable& eht, int key) {
-    bool found = eht.find(key);
-    std::cout << "Find " << key << ": " << (found ? "Found" : "Not Found") << "\n";
-}
-
-void testRemove(ExtensibleHashTable& eht, int key) {
-    bool removed = eht.remove(key);
-    std::cout << "Remove " << key << ": " << (removed ? "Removed" : "Not Found") << "\n";
-    eht.print();
-    std::cout << "\n";
-}
-
-void testEdgeCases(ExtensibleHashTable& eht) {
-    std::cout << "Test Remove from Empty Table:\n";
-    testRemove(eht, 1); 
-
-    std::cout << "Test Find in Empty Table:\n";
-    testFind(eht, 1); 
-}
-
-void testMultipleInsertsAndRemovals(ExtensibleHashTable& eht) {
-    std::cout << "Test Multiple Inserts and Removals:\n";
-    for (int i = 0; i < 20; ++i) {
-        testInsert(eht, i);
-    }
-    for (int i = 0; i < 20; ++i) {
-        testRemove(eht, i);
-    }
-}
-
-void testInsertRemoveEdgeCases(ExtensibleHashTable& eht) {
-    std::cout << "Test Insert and Remove Edge Cases:\n";
-    testInsert(eht, 42);
-    testRemove(eht, 42);
-    testInsert(eht, 42);
-    testRemove(eht, 42);
-    testInsert(eht, 42);
-    testRemove(eht, 42);
-
-    testInsert(eht, 100);
-    testInsert(eht, 100);
-    testInsert(eht, 100);
-    testRemove(eht, 100); 
-
-    testRemove(eht, 999);  
-}
-
 int main() {
     ExtensibleHashTable eht;
 
-    std::cout << "Initial Insertions:\n";
-    testInsert(eht, 64);
-    testInsert(eht, 200);
-    testInsert(eht, 153);
-    testInsert(eht, 66);
-    testInsert(eht, 218);
-    testInsert(eht, 67);
-    testInsert(eht, 13);
-    testInsert(eht, 253);
-    testInsert(eht, 109);
+    // Inserting elements into the hash table
+    eht.insert(0);
+    eht.insert(136);
+    eht.insert(61);
+    eht.insert(89);
+    eht.insert(218);
+    eht.insert(123);
+    eht.insert(43);
+    eht.insert(4);
+    eht.insert(156);
+    eht.insert(38);
+    eht.insert(222);
+    eht.insert(151);
+    eht.insert(27);
 
-    std::cout << "Test Find:\n";
-    testFind(eht, 64);
-    testFind(eht, 200);
-    testFind(eht, 153);
-    testFind(eht, 300); 
-
-    std::cout << "Test Remove:\n";
-    testRemove(eht, 153);
-    testFind(eht, 153); 
-    testRemove(eht, 300);
-
-    std::cout << "More Insertions:\n";
-    testInsert(eht, 5);
-    testInsert(eht, 5); 
-    testInsert(eht, 5); 
-    testInsert(eht, 5); 
-
-    std::cout << "Test Remove Duplicates:\n";
-    testRemove(eht, 5); 
-
-    std::cout << "Trigger Further Splits:\n";
-    testInsert(eht, 10);
-    testInsert(eht, 20);
-    testInsert(eht, 30);
-    testInsert(eht, 40);
-    testInsert(eht, 50);
-    testInsert(eht, 60);
-    testInsert(eht, 70);
-    testInsert(eht, 80);
-
-    std::cout << "Test Edge Cases:\n";
-    testEdgeCases(eht);
-
-    testMultipleInsertsAndRemovals(eht);
-
-    testInsertRemoveEdgeCases(eht);
-
-    std::cout << "Final State:\n";
     eht.print();
+
+    // Test cases to check if inserted elements are found
+    int inserted_elements[] = {27, 0, 38, 222};
+    for (int elem : inserted_elements) {
+        if (!eht.find(elem)) {
+            std::cout << "error: Not found " << elem << std::endl;
+        } else {
+            std::cout << "Found " << elem << std::endl;
+        }
+    }
+
+    // Test cases to check if non-inserted elements are not found
+    int non_inserted_elements[] = {999, 500, -1};
+    for (int elem : non_inserted_elements) {
+        if (eht.find(elem)) {
+            std::cout << "error: Found " << elem << std::endl;
+        } else {
+            std::cout << "Not found " << elem << std::endl;
+        }
+    }
+
+    // Remove an element and test if it is correctly removed
+    eht.remove(38);
+    if (eht.find(38)) {
+        std::cout << "error: Found 38 after removal" << std::endl;
+    } else {
+        std::cout << "Successfully removed 38" << std::endl;
+    }
+
+    // Insert the same element multiple times and check if it is found
+    for (int i = 0; i < 10; i++) {
+        eht.insert(99);
+    }
+    if (!eht.find(99)) {
+        std::cout << "error: Not found 99" << std::endl;
+    } else {
+        std::cout << "Found 99" << std::endl;
+    }
+
+    // Remove the element and check if it is correctly removed
+    eht.remove(99);
+    if (eht.find(99)) {
+        std::cout << "error: Found 99 after removal" << std::endl;
+    } else {
+        std::cout << "Successfully removed 99" << std::endl;
+    }
 
     return 0;
 }

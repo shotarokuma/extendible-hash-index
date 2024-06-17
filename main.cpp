@@ -36,6 +36,7 @@ int main() {
     for (int elem : non_inserted_elements) {
         if (eht.find(elem)) {
             std::cout << "error: Found " << elem << std::endl;
+            exit(1);
         } else {
             std::cout << "Not found " << elem << std::endl;
         }
@@ -45,6 +46,7 @@ int main() {
     eht.remove(38);
     if (eht.find(38)) {
         std::cout << "error: Found 38 after removal" << std::endl;
+        exit(1);
     } else {
         std::cout << "Successfully removed 38" << std::endl;
     }
@@ -55,6 +57,7 @@ int main() {
     }
     if (!eht.find(99)) {
         std::cout << "error: Not found 99" << std::endl;
+        exit(1);
     } else {
         std::cout << "Found 99" << std::endl;
     }
@@ -63,6 +66,7 @@ int main() {
     eht.remove(99);
     if (eht.find(99)) {
         std::cout << "error: Found 99 after removal" << std::endl;
+        exit(1);
     } else {
         std::cout << "Successfully removed 99" << std::endl;
     }

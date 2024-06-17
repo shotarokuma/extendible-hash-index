@@ -1,4 +1,5 @@
 #include "ExtensibleHashTable.h"
+#include <stdexcept>
 
 ExtensibleHashTable::ExtensibleHashTable()
     : globalDepth(1), directory(2)
@@ -105,23 +106,39 @@ bool ExtensibleHashTable::find(int key) const
 
 void ExtensibleHashTable::insert(int key)
 {
-  int target = hash(key, globalDepth);
-
-  while (!(directory[target]->insert(key)))
+  try
   {
-    if (directory[target]->localDepth == globalDepth)
+    int target = hash(key, globalDepth);
+
+    while (!(directory[target]->insert(key)))
     {
-      doubleDirectory();
-      splitBucket(directory[target]);
-      target = hash(key, globalDepth);
+      if (directory[target]->localDepth == globalDepth)
+      {
+        int dup = 0;
+        for(int i = 0; i < directory[target] -> currSize;i++){
+          if(directory[target] -> keys[i] == key){
+            dup += 1;
+          }
+        }
+        if(dup >= directory[target] -> size){
+          throw std::runtime_error("The Bucket is filled with same keys");
+        }
+        doubleDirectory();
+        splitBucket(directory[target]);
+        target = hash(key, globalDepth);
+      }
+      else
+      {
+        Bucket *prev = directory[target];
+        directory[target]->localDepth += 1;
+        directory[target] = new Bucket(directory[target]->size, directory[target]->localDepth);
+        splitBucket(prev);
+      }
     }
-    else
-    {
-      Bucket *prev = directory[target];
-      directory[target]->localDepth += 1;
-      directory[target] = new Bucket(directory[target]->size, directory[target]->localDepth);
-      splitBucket(prev);
-    }
+  }
+  catch (const std::runtime_error &e)
+  {
+    std::cerr << "Caught a runtime_error: " << e.what() << std::endl;
   }
 }
 

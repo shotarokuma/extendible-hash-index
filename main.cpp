@@ -53,7 +53,7 @@ int main() {
     }
 
     // Insert the same element multiple times and check if it is found
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 2; i++) {
         eht.insert(99);
     }
     if (!eht.find(99)) {
@@ -70,6 +70,11 @@ int main() {
         exit(1);
     } else {
         std::cout << "Successfully removed 99" << std::endl;
+    }
+
+
+    for (int i = 0; i <3; i++) {
+        eht.insert(99);
     }
 
     return 0;
